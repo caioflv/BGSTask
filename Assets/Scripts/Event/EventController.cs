@@ -6,4 +6,5 @@ using UnityEngine;
 public static class EventController
 {
     public static Action<bool, Vector2> InteractableElement { get; set; }
+    public static Action<bool> TogglePlayerController { get; set; }
 }

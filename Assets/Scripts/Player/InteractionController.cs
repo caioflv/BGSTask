@@ -1,36 +1,36 @@
 using System.Linq;
 using UnityEngine;
 
-public class InteractionController : MonoBehaviour
+partial class PlayerController : MonoBehaviour
 {
-    [SerializeField] private Transform _pivot;
-    [SerializeField] private LayerMask _collisionLayer;
+    [SerializeField] private Transform _interactionPivot;
+    [SerializeField] private LayerMask _interactionLayer;
     [SerializeField] private float _interactionRadius = 2;
-    private bool _active;
+    private bool _isInteracting;
 
-    public IInteractable SelectedInteractable;
+    public IInteractable _selectedInteractable;
 
     private void Refresh(Collider2D collider)
     {
-        if (!collider && !_active)
+        if (!collider && !_isInteracting)
             return;
 
         Vector2 position = collider ? collider.transform.position : Vector2.zero;
-        SelectedInteractable = collider ? collider.GetComponent<IInteractable>() : null;
+        _selectedInteractable = collider ? collider.GetComponent<IInteractable>() : null;
 
-        _active = SelectedInteractable != null;
+        _isInteracting = _selectedInteractable != null;
 
-        EventController.InteractableElement?.Invoke(_active, position);
+        EventController.InteractableElement?.Invoke(_isInteracting, position);
     }
 
-    private void FixedUpdate()
+    private void CheckNearElements()
     {
-        Collider2D[] colliders = Physics2D.OverlapCircleAll(_pivot.position, _interactionRadius, _collisionLayer);
+        Collider2D[] colliders = Physics2D.OverlapCircleAll(_interactionPivot.position, _interactionRadius, _interactionLayer);
         Collider2D target = null;
 
         if (colliders.Length > 0)
         {
-            colliders.OrderBy(x => (x.transform.position - _pivot.position).magnitude);
+            colliders.OrderBy(x => (x.transform.position - _interactionPivot.position).magnitude);
             target = colliders[0];
         }
 
