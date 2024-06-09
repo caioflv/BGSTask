@@ -3,45 +3,56 @@ using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
 
-public class UIController : MonoBehaviour
+namespace BGSTask
 {
-    [SerializeField] private RectTransform _interactionIcon;
-
-    private void Awake()
+    public class UIController : Controller
     {
-        EventController.InteractableElement += ToggleInteractionIcon;
-    }
+        [SerializeField] private Transform _shopCamera;
+        [SerializeField] private RectTransform _interactionIcon;
 
-    private void ToggleInteractionIcon(bool active, Vector2 position)
-    {
-        if (active != _interactionIcon.gameObject.activeSelf)
+        public override void Init()
         {
-            PopEffect(_interactionIcon, active);
+            EventController.ToggleShop += ToggleShop;
+            EventController.InteractableElement += ToggleInteractionIcon;
         }
 
-        if (active)
+        private void ToggleShop(bool mode)
         {
-            _interactionIcon.position = Camera.main.WorldToScreenPoint(position);
+            _shopCamera.gameObject.SetActive(mode);
         }
-    }
 
-    private void PopEffect(RectTransform rect, bool mode)
-    {
-        rect.DOKill(true);
-
-        rect.localScale = mode ? Vector3.zero : Vector3.one;
-        rect.gameObject.SetActive(true);
-
-        if (mode)
+        private void ToggleInteractionIcon(bool active, Vector2 position)
         {
-            rect.DOScale(Vector3.one, 0.2f).SetEase(Ease.OutBack);
-        }
-        else
-        {
-            rect.DOScale(Vector3.zero, 0.1f).SetEase(Ease.InBack).OnComplete(() =>
+            if (active != _interactionIcon.gameObject.activeSelf)
             {
-                rect.gameObject.SetActive(mode);
-            }); 
+                PopIconEffect(_interactionIcon, active);
+            }
+
+            if (active)
+            {
+                _interactionIcon.position = Camera.main.WorldToScreenPoint(position);
+            }
+        }
+
+        private void PopIconEffect(RectTransform rect, bool mode)
+        {
+            rect.DOKill(true);
+
+            rect.localScale = mode ? Vector3.zero : Vector3.one;
+            rect.gameObject.SetActive(true);
+
+            if (mode)
+            {
+                rect.DOScale(Vector3.one, 0.2f).SetEase(Ease.OutBack);
+            }
+            else
+            {
+                rect.DOScale(Vector3.zero, 0.1f).SetEase(Ease.InBack).OnComplete(() =>
+                {
+                    rect.gameObject.SetActive(mode);
+                });
+            }
         }
     }
+
 }
